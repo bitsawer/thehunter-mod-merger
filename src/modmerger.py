@@ -12,8 +12,8 @@ import version
 
 GLOBAL_GDCC = "global.gdcc"
 ORIGINAL_GDCC = "original.gdcc"
-MOD_DIR = "mods"
-OUTPUT_DIR = "output"
+MOD_DIR = "../mods"
+OUTPUT_DIR = "../output"
 
 KNOWN_GDCC_HASHES = [
     "59baa86577fbcbeeb5b401738b1a9c04", #Revontuli update (28 June 2022)
