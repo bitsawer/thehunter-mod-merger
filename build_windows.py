@@ -13,7 +13,7 @@ shutil.copyfile("src/original.gdcc", "dist/original.gdcc")
 shutil.copyfile("README.md", "dist/README.md")
 os.mkdir("dist/mods")
 
-shutil.make_archive("thehunter-mod-merger-%s" % version.VERSION, "zip", root_dir="dist")
+shutil.make_archive("thehunter-mod-merger-%s-win64" % version.VERSION, "zip", root_dir="dist")
 
 shutil.rmtree("dist")
 shutil.rmtree("build")
