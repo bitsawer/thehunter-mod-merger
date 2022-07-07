@@ -8,7 +8,7 @@ Binary releases for Windows are available in the [Releases-section](https://gith
 
 ## How to use
 
-Download the mods you want and place them in the mods-directory in the application .exe directory. Note that each mod that is not a single global.gdcc should have a dropzone-named directory somewhere in their directory structure. This is because the part after that is used as a "virtual" directory path which will point inside an entry in global.gdcc. If you mess this up, you notice that the mod files are shown in the unknown files section.
+Download the mods you want and place them in the mods-directory one level above the application directory. Note that each mod that is not a single global.gdcc should have a dropzone-named directory somewhere in their directory structure. This is because the part after that is used as a "virtual" directory path which will point inside an entry in global.gdcc. If you mess this up, you notice that the mod files are shown in the unknown files section.
 
 If there are any conflicts (items shown as red), you must remove one of the conflicting mods before merging. Open the red tree item to see which file it conflicts with. Not much that can be done about this other than removing a mod causing the issue, although if you know some hex-editing you can always manually decide what to keep.
 
