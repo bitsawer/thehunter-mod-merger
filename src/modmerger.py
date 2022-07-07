@@ -8,6 +8,7 @@ from tkinter import messagebox
 from tkinter.ttk import *
 
 from deca import ff_file, ff_adf
+import version
 
 GLOBAL_GDCC = "global.gdcc"
 ORIGINAL_GDCC = "original.gdcc"
@@ -301,6 +302,6 @@ class ModMergerApp(Tk):
         self.tree.tag_configure("red_fg", foreground="red")
 
 app = ModMergerApp()
-app.title("theHunter COTW Mod Merger")
+app.title("theHunter COTW Mod Merger (%s)" % version.VERSION)
 app.geometry("1024x600")
 app.mainloop()
