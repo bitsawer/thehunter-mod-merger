@@ -130,7 +130,7 @@ class ModMergerApp(Tk):
             error = ""
             file_size = len(contents[i])
             if file_size != len(original_gdcc):
-                error = "File size does not match."
+                error = "File size does not match, should be %i" % len(original_gdcc)
 
             infos[gd.file_path] = {
                 "changed": 0,
@@ -180,7 +180,7 @@ class ModMergerApp(Tk):
 
                 error = ""
                 if len(raw) != entry.size:
-                    error = "File size does not match global.gdcc entry size"
+                    error = "File size does not match global.gdcc entry size, should be %i" % entry.size
 
                 infos[mod_file.file_path] = {
                     "changed": 0,
