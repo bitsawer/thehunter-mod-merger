@@ -141,10 +141,16 @@ class ModMergerApp(Tk):
 
         for i, original_byte in enumerate(original_gdcc):
             for x, gdcc in enumerate(gdccs):
-                gdcc_byte = contents[x][i]
+                gdcc_data = contents[x]
 
-                self.compare_byte(gdcc, i, gdcc_byte, original_byte,
-                    original_gdcc, write_gdcc, overwritten, infos)
+                try:
+                    gdcc_byte = gdcc_data[i]
+                    self.compare_byte(gdcc, i, gdcc_byte, original_byte,
+                        original_gdcc, write_gdcc, overwritten, infos)
+                except IndexError:
+                    #Probably wrong file size
+                    if not infos[gdcc.file_path]["error"]:
+                        infos[gdcc.file_path]["error"] = "Invalid index at %i" % i
 
         return infos
 
@@ -182,21 +188,27 @@ class ModMergerApp(Tk):
                 if len(raw) != entry.size:
                     error = "File size does not match global.gdcc entry size, should be %i" % entry.size
 
-                infos[mod_file.file_path] = {
+                info = {
                     "changed": 0,
                     "conflicts": set(),
                     "file_size": len(raw),
                     "error": error,
                 }
+                infos[mod_file.file_path] = info
 
                 file_offset = entry.offset + entry._file_offset
                 for i in range(0, entry.size):
                     index = file_offset + i
-                    original_byte = original_gdcc[index]
-                    file_byte = raw[i]
 
-                    self.compare_byte(mod_file, index, file_byte, original_byte,
-                        original_gdcc, write_gdcc, overwritten, infos)
+                    try:
+                        original_byte = original_gdcc[index]
+                        file_byte = raw[i]
+                        self.compare_byte(mod_file, index, file_byte, original_byte,
+                            original_gdcc, write_gdcc, overwritten, infos)
+                    except IndexError:
+                        #Probably wrong file size
+                        if not info["error"]:
+                            info["error"] = "Invalid index at %i" % i
 
         return infos
 
