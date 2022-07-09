@@ -10,10 +10,17 @@ from tkinter.ttk import *
 from deca import ff_file, ff_adf
 import version
 
+APP_PATH = os.path.dirname(os.path.realpath(__file__))
+
 GLOBAL_GDCC = "global.gdcc"
-ORIGINAL_GDCC = "original.gdcc"
-MOD_DIR = "../mods"
-OUTPUT_DIR = "../output"
+ORIGINAL_GDCC = os.path.join(APP_PATH, "original.gdcc")
+MOD_DIR = os.path.abspath(os.path.join(APP_PATH, "../mods"))
+OUTPUT_DIR = os.path.abspath(os.path.join(APP_PATH, "../output"))
+
+print("Starting Mod Merger...")
+print("App Path: %s" % APP_PATH)
+print("Mod directory: %s" % MOD_DIR)
+print("Output directory: %s" % OUTPUT_DIR)
 
 KNOWN_GDCC_HASHES = [
     "59baa86577fbcbeeb5b401738b1a9c04", #Revontuli update (28 June 2022)
