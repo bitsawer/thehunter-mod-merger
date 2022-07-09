@@ -281,6 +281,13 @@ class ModMergerApp(Tk):
     def clear_tree(self):
         self.tree.delete(*self.tree.get_children())
 
+    def trim_path(self, path):
+        mods_path = MOD_DIR.replace("\\", "/") + "/"
+        path = path.replace("\\", "/")
+        if path.startswith(mods_path):
+            path = path.replace(mods_path, "", 1)
+        return path
+
     def update_tree_view(self):
         self.clear_tree()
 
@@ -291,7 +298,7 @@ class ModMergerApp(Tk):
         if self.unknown_files:
             self.tree.insert("", END, iid="unknown", text=UNKNOWN_TEXT, open=False)
             for f in self.unknown_files:
-                self.tree.insert("unknown", END, text=f.file_path)
+                self.tree.insert("unknown", END, text=self.trim_path(f.file_path))
 
         self.tree.insert("", END, iid="root", text="Modded Files", open=True)
 
@@ -308,14 +315,14 @@ class ModMergerApp(Tk):
                 if info["conflicts"] or error:
                     color = "red_fg"
 
-            iid = self.tree.insert("root", END, text=f.file_path, values=(changed, size), tags=[color])
+            iid = self.tree.insert("root", END, text=self.trim_path(f.file_path), values=(changed, size), tags=[color])
 
             if error:
                 self.tree.insert(iid, END, text="Error: %s" % error, tags=["red_fg"])
 
             if info:
                 for clash in info["conflicts"]:
-                    self.tree.insert(iid, END, text="Conflicts with: %s" % clash, tags=["red_fg"])
+                    self.tree.insert(iid, END, text="Conflicts with: %s" % self.trim_path(clash), tags=["red_fg"])
 
         self.tree.tag_configure("green_fg", foreground="green")
         self.tree.tag_configure("red_fg", foreground="red")
