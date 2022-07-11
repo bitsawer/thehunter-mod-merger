@@ -10,7 +10,7 @@ BITS = struct.calcsize("P") * 8
 if os.path.exists("dist"):
     shutil.rmtree("dist")
 
-os.system("pyinstaller src/modmerger.py")
+os.system("pipenv run pyinstaller src/modmerger.py")
 
 if True:
     #A bit of a hack: unzip the "base_library.zip" into an actual directory called "base_library.zip".
