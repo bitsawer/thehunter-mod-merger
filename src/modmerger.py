@@ -7,6 +7,8 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import *
 
+from intervaltree import Interval, IntervalTree
+
 from deca import ff_file, ff_adf
 import version
 
@@ -68,7 +70,7 @@ class ModMergerApp(Tk):
             sys.exit()
 
         self.adf = self.read_global_gdcc()
-        self.file_paths = self.get_gdcc_files()
+        self.file_paths, self.interval_tree = self.get_gdcc_files()
         self.mod_files, self.unknown_files = self.find_mod_files()
 
         original_gdcc = open(ORIGINAL_GDCC, "rb").read()
@@ -103,6 +105,7 @@ class ModMergerApp(Tk):
 
     def get_gdcc_files(self):
         files = {}
+        interval_tree = IntervalTree()
         for i, instance in enumerate(self.adf.table_instance_values):
             for item in instance:
                 path = str(item.v_path, "ascii")
@@ -111,7 +114,10 @@ class ModMergerApp(Tk):
                 item._file_offset = self.adf.table_instance[i].offset
                 files[path] = item
 
-        return files
+                global_offset = item._file_offset + item.offset
+                interval_tree[global_offset:global_offset+item.size] = path
+
+        return files, interval_tree
 
     def find_mod_files(self):
         mod_files = []
@@ -144,6 +150,7 @@ class ModMergerApp(Tk):
                 "conflicts": set(),
                 "file_size": file_size,
                 "error": error,
+                "files_changed": set(),
             }
 
         for i, original_byte in enumerate(original_gdcc):
@@ -165,6 +172,9 @@ class ModMergerApp(Tk):
         original_changed = (file_byte != original_gdcc[i])
         if original_changed:
             infos[mod_file.file_path]["changed"] += 1
+
+            for p in self.interval_tree[i]:
+                infos[mod_file.file_path]["files_changed"].add(p.data)
 
         changed = original_changed and (file_byte != write_gdcc[i])
         if changed:
@@ -200,6 +210,7 @@ class ModMergerApp(Tk):
                     "conflicts": set(),
                     "file_size": len(raw),
                     "error": error,
+                    "files_changed": set(),
                 }
                 infos[mod_file.file_path] = info
 
@@ -300,7 +311,7 @@ class ModMergerApp(Tk):
             for f in self.unknown_files:
                 self.tree.insert("unknown", END, text=self.trim_path(f.file_path))
 
-        self.tree.insert("", END, iid="root", text="Modded Files", open=True)
+        self.tree.insert("", END, iid="root", text="Modded files", open=True)
 
         for f in self.mod_files:
             info = self.file_info.get(f.file_path)
@@ -323,6 +334,11 @@ class ModMergerApp(Tk):
             if info:
                 for clash in info["conflicts"]:
                     self.tree.insert(iid, END, text="Conflicts with: %s" % self.trim_path(clash), tags=["red_fg"])
+
+                if info["files_changed"]:
+                    changed_iid = self.tree.insert(iid, END, text="Changed files in global.gdcc", tags=[color], open=True)
+                    for c in sorted(info["files_changed"]):
+                        self.tree.insert(changed_iid, END, text=c, tags=[color])
 
         self.tree.tag_configure("green_fg", foreground="green")
         self.tree.tag_configure("red_fg", foreground="red")
