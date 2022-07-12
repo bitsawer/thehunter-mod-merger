@@ -56,6 +56,10 @@ The game may also crash or become unstable.
 
 Are you sure you want to force the merge?"""
 
+MERGE_STATE_OK = 1
+MERGE_STATE_CONFLICTS = 2
+MERGE_STATE_ERROR = 3
+
 class ModFile:
     def __init__(self, name, file_path, gdcc_path):
         self.name = name
@@ -94,10 +98,13 @@ class ModMergerApp(Tk):
         self.file_info.update(self.merge_gdccs(original_gdcc, self.merged_gdcc, overwritten))
         self.file_info.update(self.merge_files(original_gdcc, self.merged_gdcc, overwritten))
 
-        self.merge_ok = True
+        self.merge_state = MERGE_STATE_OK
         for item in self.file_info.values():
-            if item["error"] or item["conflicts"]:
-                self.merge_ok = False
+            if item["error"]:
+                self.merge_state = MERGE_STATE_ERROR
+                break
+            if item["conflicts"]:
+                self.merge_state = MERGE_STATE_CONFLICTS
                 break
 
         self.update_tree_view()
@@ -105,10 +112,10 @@ class ModMergerApp(Tk):
         if gdcc_hash not in KNOWN_GDCC_HASHES:
             messagebox.showwarning("%s Warning" % ORIGINAL_GDCC, HASH_WARNING)
 
-        merge_state = NORMAL if len(self.mod_files) > 0 else DISABLED
-        self.merge_button.configure(state=merge_state)
+        button_state = NORMAL if len(self.mod_files) > 0 else DISABLED
+        self.merge_button.configure(state=button_state)
 
-        force_state = NORMAL if len(self.mod_files) > 0 and not self.merge_ok else DISABLED
+        force_state = NORMAL if len(self.mod_files) > 0 and self.merge_state == MERGE_STATE_CONFLICTS else DISABLED
         self.force_button.configure(state=force_state)
 
     def read_global_gdcc(self):
@@ -299,8 +306,8 @@ class ModMergerApp(Tk):
             pass
 
         if not force:
-            if not self.merge_ok:
-                messagebox.showerror("Merge Failed!", "Remove any conflicting files before trying to merge.")
+            if self.merge_state != MERGE_STATE_OK:
+                messagebox.showerror("Merge Failed!", "Remove any errors and conflicts before trying to merge.")
                 return
 
         if not os.path.exists(OUTPUT_DIR):
