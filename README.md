@@ -22,4 +22,4 @@ Also remember to set up your game launch options (including that last dot!):
 
 ## Building
 
-Most of the app is written in stock Python 3.x and the only external dependency in numpy. Also some code files related to .adf-parsing were brutally hacked off and modified from [DECA tools](https://github.com/kk49/deca), thanks to everyone who has been delving into the depths of the Avalanche engine file formats.
+Use pipenv to install dependencies. Some code files related to .adf-parsing were brutally hacked off and modified from [DECA tools](https://github.com/kk49/deca), thanks to everyone who has been delving into the depths of the Avalanche engine file formats.
