@@ -51,7 +51,8 @@ This operation will forcefully merge all mods. When resolving conflicts, a file 
 the view listing will win. If you want to change this order, simply rename or create a directory with another name, \
 they are sorted alphabetically (using their full path).
 
-This may or may not work, depending on how the mods have modified the files. The game may also crash.
+The results of a forced merge may or may not work, depending on how the mods have modified the files. \
+The game may also crash or become unstable.
 
 Are you sure you want to force the merge?"""
 
