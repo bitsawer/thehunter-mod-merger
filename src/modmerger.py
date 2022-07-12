@@ -62,7 +62,7 @@ class ModFile:
         self.gdcc_path = gdcc_path
 
 def sort_mod_files(files):
-    return sorted(files, key=lambda f: f.file_path)
+    return sorted(files, key=lambda f: f.file_path.lower())
 
 class ModMergerApp(Tk):
     def __init__(self):
