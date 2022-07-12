@@ -44,6 +44,17 @@ You can now copy this file to "..../theHunterCotW/dropzone/gdc/global.gdcc".
 
 Remember to also set the game launch options if you haven't already!"""
 
+FORCE_MERGE = """\
+!!! WARNING - THERE ARE MOD CONFLICTS !!!
+
+This operation will forcefully merge all mods. When resolving conflicts, a file listed higher in \
+the view listing will win. If you want to change this order, simply rename or create a directory with another name, \
+they are sorted alphabetically (using their full path).
+
+This may or may not work, depending on how the mods have modified the files. The game may also crash.
+
+Are you sure you want to force the merge?"""
+
 class ModFile:
     def __init__(self, name, file_path, gdcc_path):
         self.name = name
@@ -75,17 +86,17 @@ class ModMergerApp(Tk):
 
         original_gdcc = open(ORIGINAL_GDCC, "rb").read()
         gdcc_hash = hashlib.md5(original_gdcc).hexdigest()
-        write_gdcc = bytearray(original_gdcc)
+        self.merged_gdcc = bytearray(original_gdcc)
+
         overwritten = {}
-
         self.file_info = {}
-        self.file_info.update(self.merge_gdccs(original_gdcc, write_gdcc, overwritten))
-        self.file_info.update(self.merge_files(original_gdcc, write_gdcc, overwritten))
+        self.file_info.update(self.merge_gdccs(original_gdcc, self.merged_gdcc, overwritten))
+        self.file_info.update(self.merge_files(original_gdcc, self.merged_gdcc, overwritten))
 
-        self.merged_gdcc = write_gdcc
+        self.merge_ok = True
         for item in self.file_info.values():
             if item["error"] or item["conflicts"]:
-                self.merged_gdcc = None
+                self.merge_ok = False
                 break
 
         self.update_tree_view()
@@ -93,8 +104,11 @@ class ModMergerApp(Tk):
         if gdcc_hash not in KNOWN_GDCC_HASHES:
             messagebox.showwarning("%s Warning" % ORIGINAL_GDCC, HASH_WARNING)
 
-        button_state = NORMAL if len(self.mod_files) > 0 else DISABLED
-        self.merge_button.configure(state=button_state)
+        merge_state = NORMAL if len(self.mod_files) > 0 else DISABLED
+        self.merge_button.configure(state=merge_state)
+
+        force_state = NORMAL if len(self.mod_files) > 0 and not self.merge_ok else DISABLED
+        self.force_button.configure(state=force_state)
 
     def read_global_gdcc(self):
         with open(ORIGINAL_GDCC, "rb") as f:
@@ -261,21 +275,32 @@ class ModMergerApp(Tk):
         self.merge_button = Button(button_frame, text="Merge Mods", command=self.merge_pressed, width=20)
         self.merge_button.pack(side=LEFT)
 
+        self.force_button = Button(button_frame, text="Force Merge", command=self.merge_force_pressed, width=20)
+        self.force_button.pack(side=LEFT, padx=PAD)
+
         self.refresh_button = Button(button_frame, text="Refresh", command=self.refresh_pressed, width=20)
-        self.refresh_button.pack(side=LEFT, padx=PAD)
+        self.refresh_button.pack(side=LEFT)
 
         self.tree = tree
 
+    def merge_force_pressed(self):
+        if messagebox.askyesno("Force Merge", FORCE_MERGE):
+            self.save_merged(True)
+
     def merge_pressed(self):
+        self.save_merged(False)
+
+    def save_merged(self, force):
         out_path = os.path.join(OUTPUT_DIR, GLOBAL_GDCC).replace("\\", "/")
         try:
             os.remove(out_path)
         except OSError:
             pass
 
-        if not self.merged_gdcc:
-            messagebox.showerror("Merge Failed!", "Remove any conflicting files before trying to merge.")
-            return
+        if not force:
+            if not self.merge_ok:
+                messagebox.showerror("Merge Failed!", "Remove any conflicting files before trying to merge.")
+                return
 
         if not os.path.exists(OUTPUT_DIR):
             os.mkdir(OUTPUT_DIR)
