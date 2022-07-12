@@ -101,11 +101,11 @@ class ModMergerApp(Tk):
         self.merge_state = MERGE_STATE_OK
         for item in self.file_info.values():
             if item["error"]:
+                #Serious error, bail out.
                 self.merge_state = MERGE_STATE_ERROR
                 break
-            if item["conflicts"]:
+            elif item["conflicts"]:
                 self.merge_state = MERGE_STATE_CONFLICTS
-                break
 
         self.update_tree_view()
 
